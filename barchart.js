@@ -37,7 +37,7 @@
         barWidth = width / labels.length;
 
      // Set up the SVG element.
-        svg = d3.select("body")
+        svg = d3.select(parentElement)
                 .append("svg:svg")
                 .attr("width", width)
                 .attr("height", height);
