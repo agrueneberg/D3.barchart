@@ -29,15 +29,18 @@
 
             selection.each(function (data) {
 
-                var yMin, yMax, svg, enter, group;
+                var labels, yMin, yMax, svg, enter, group;
+
+             // Extract labels.
+                labels = d3.keys(data);
 
              // Convert object to array.
                 data = d3.keys(data).map(function (d) {
                     return [d, data[d]];
                 });
 
-             // Update x scale.
-                xScale.domain(d3.keys(data))
+             // Update padded x scale.
+                xScale.domain(labels)
                       .rangeBands([yAxisPadding, width]);
 
              // Update padded y scale.
@@ -85,8 +88,8 @@
                    .attr("height", function (d) {
                         return yScale(d[1]);
                     })
-                   .attr("x", function (d, i) {
-                        return yAxisPadding + (xScale.rangeBand() * i);
+                   .attr("x", function (d) {
+                        return xScale(d[0]);
                     })
                    .attr("y", function (d) {
                        return height - yScale(d[1]);
