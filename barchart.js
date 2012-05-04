@@ -7,7 +7,7 @@
     exports.barchart = function () {
 
         var barchart, width, height, xScale, yScale, yAxisPadding,
-            yAxisTicks, yAxisScale, yAxis;
+            yAxisTicks, yAxisScale, yAxis, tooltip;
 
         width = 300;
         height = 300;
@@ -23,6 +23,29 @@
                   .orient("left")
                   .ticks(yAxisTicks)
                   .tickSize(6, 0);
+
+        tooltip = (function () {
+            var body, tooltip;
+            body = d3.select("body");
+            tooltip = body.append("div")
+                          .style("display", "none")
+                          .style("position", "absolute")
+                          .style("padding", "5px")
+                          .style("background-color", "rgba(242, 242, 242, .6)")
+            return {
+                show: function (d) {
+                    var mouse;
+                    mouse = d3.mouse(body.node());
+                    tooltip.style("display", null)
+                           .style("left", (mouse[0] + 25) + "px")
+                           .style("top", (mouse[1] - 10) + "px")
+                           .html(d);
+                },
+                hide: function () {
+                    tooltip.style("display", "none");
+                }
+            };
+        }());
 
         barchart = function (selection) {
 
@@ -95,9 +118,11 @@
                    .attr("height", function (d) {
                         return yScale(d[1]);
                     })
-                   .append("title")
-                   .text(function (d) {
-                        return d[0];
+                   .on("mousemove", function (d) {
+                       tooltip.show(d[0]);
+                    })
+                   .on("mouseout", function (d) {
+                       tooltip.hide();
                     });
 
             });
@@ -125,6 +150,12 @@
         barchart.yAxisTicks = function (_) {
             if (!arguments.length) return yAxisTicks;
             yAxisTicks = _;
+            return barchart;
+        };
+
+        barchart.tooltip = function (_) {
+            if (!arguments.length) return tooltip;
+            tooltip = _;
             return barchart;
         };
 
