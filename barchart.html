@@ -24,7 +24,7 @@
  // Wait until the browser has created a body element for us.
     document.addEventListener("DOMContentLoaded", function () {
 
-        var data;
+        var data, viz;
 
         data = {
             "14-3-3_epsilon-M-C": 0.25498363144116637,
@@ -200,10 +200,13 @@
             "c-Kit-R-V": 1.3222102500238064
         };
 
-     // Draw barchart.
-        barchart(data, {
-            width: 1000
-        });
+     // Intialize barchart.
+        viz = barchart().width(1000);
+
+     // Generate barchart.
+        d3.select("body")
+          .datum(data)
+          .call(viz);
 
     });
 
