@@ -6,21 +6,20 @@
 
     exports.barchart = function () {
 
-        var barchart, width, height, yAxisPadding, yAxisTicks,
-            xScale, yScale, yInverseScale, xAxis, yAxis;
+        var barchart, width, height, xScale, yScale, yAxisPadding,
+            yAxisTicks, yAxisScale, yAxis;
 
         width = 300;
         height = 300;
 
         xScale = d3.scale.ordinal();
+        yScale = d3.scale.linear();
 
         yAxisPadding = 25;
         yAxisTicks = height / 75;
-        yScale = d3.scale.linear();
-        yInverseScale = d3.scale.linear();
-
+        yAxisScale = d3.scale.linear();
         yAxis = d3.svg.axis()
-                  .scale(yInverseScale)
+                  .scale(yAxisScale)
                   .orient("left")
                   .ticks(yAxisTicks)
                   .tickSize(6, 0);
@@ -29,7 +28,7 @@
 
             selection.each(function (data) {
 
-                var labels, yMin, yMax, svg, enter, group;
+                var labels, yMin, yMax, svg;
 
              // Extract labels.
                 labels = d3.keys(data);
@@ -43,7 +42,7 @@
                 xScale.domain(labels)
                       .rangeBands([yAxisPadding, width]);
 
-             // Update padded y scale.
+             // Update y scale.
                 yMin = d3.min(data, function (d) {
                     return d[1];
                 });
@@ -52,8 +51,10 @@
                 });
                 yScale.domain([yMin, yMax])
                       .range([0, height]);
-                yInverseScale.domain([yMin, yMax])
-                             .range([height, 0]);
+
+             // Update inverted y scale for y axis.
+                yAxisScale.domain([yMin, yMax])
+                          .range([height, 0]);
 
              // Select existing SVG elements.
                 svg = d3.select(this)
@@ -82,17 +83,17 @@
                    .enter()
                    .append("rect")
                    .attr("class", "bar")
-                   .attr("width", function (d) {
-                        return xScale.rangeBand();
-                    })
-                   .attr("height", function (d) {
-                        return yScale(d[1]);
-                    })
                    .attr("x", function (d) {
                         return xScale(d[0]);
                     })
                    .attr("y", function (d) {
                        return height - yScale(d[1]);
+                    })
+                   .attr("width", function (d) {
+                        return xScale.rangeBand();
+                    })
+                   .attr("height", function (d) {
+                        return yScale(d[1]);
                     })
                    .append("title")
                    .text(function (d) {
