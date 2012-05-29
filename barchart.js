@@ -6,7 +6,7 @@
 
     exports.barchart = function () {
 
-        var barchart, width, height, xScale, yScale, yAxisPadding,
+        var barchart, width, height, minimum, maximum, xScale, yScale, yAxisPadding,
             yAxisTicks, yAxisScale, yAxis, tooltip;
 
         width = 300;
@@ -51,7 +51,7 @@
 
             selection.each(function (data) {
 
-                var labels, yMin, yMax, svg;
+                var labels, range, yMin, yMax, svg;
 
              // Extract labels.
                 labels = d3.keys(data);
@@ -65,18 +65,29 @@
                 xScale.domain(labels)
                       .rangeBands([yAxisPadding, width]);
 
-             // Update y scale.
+             // Compute range.
                 yMin = d3.min(data, function (d) {
                     return d[1];
                 });
                 yMax = d3.max(data, function (d) {
                     return d[1];
                 });
-                yScale.domain([yMin, yMax])
+                if (minimum !== undefined && maximum !== undefined) {
+                    range = [minimum, maximum];
+                } else if (maximum !== undefined) {
+                    range = [yMin, maximum];
+                } else if (minimum !== undefined) {
+                    range = [minimum, yMax];
+                } else {
+                    range = [yMin, yMax];
+                }
+
+             // Update y scale.
+                yScale.domain(range)
                       .range([0, height]);
 
              // Update inverted y scale for y axis.
-                yAxisScale.domain([yMin, yMax])
+                yAxisScale.domain(range)
                           .range([height, 0]);
 
              // Select existing SVG elements.
@@ -91,6 +102,15 @@
              // Update both existing and newly created SVG elements.
                 svg.attr("width", width)
                    .attr("height", height);
+
+             // Generate custom x axis.
+                svg.append("g")
+                   .attr("class", "axis")
+                   .append("line")
+                   .attr("x1", yAxisPadding)
+                   .attr("y1", height)
+                   .attr("x2", width)
+                   .attr("y2", height);
 
              // Generate y axis.
                 svg.append("g")
@@ -138,6 +158,18 @@
         barchart.width = function (_) {
             if (!arguments.length) return width;
             width = _;
+            return barchart;
+        };
+
+        barchart.minimum = function (_) {
+            if (!arguments.length) return minimum;
+            minimum = _;
+            return barchart;
+        };
+
+        barchart.maximum = function (_) {
+            if (!arguments.length) return maximum;
+            maximum = _;
             return barchart;
         };
 
