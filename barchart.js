@@ -6,14 +6,16 @@
 
     exports.barchart = function () {
 
-        var barchart, width, height, minimum, maximum, xScale, yScale, yAxisPadding,
-            yAxisTicks, yAxisScale, yAxis, tooltip;
+        var barchart, width, height, minimum, maximum, xScale, yScale, xAxisPadding,
+            yAxisPadding, yAxisTicks, yAxisScale, yAxis, tooltip;
 
         width = 300;
         height = 300;
 
         xScale = d3.scale.ordinal();
         yScale = d3.scale.linear();
+
+        xAxisPadding = 10;
 
         yAxisPadding = 25;
         yAxisTicks = height / 75;
@@ -84,11 +86,11 @@
 
              // Update y scale.
                 yScale.domain(range)
-                      .range([0, height]);
+                      .range([xAxisPadding, height - xAxisPadding]);
 
              // Update inverted y scale for y axis.
                 yAxisScale.domain(range)
-                          .range([height, 0]);
+                          .range([height - xAxisPadding, xAxisPadding]);
 
              // Select existing SVG elements.
                 svg = d3.select(this)
@@ -108,9 +110,9 @@
                    .attr("class", "axis")
                    .append("line")
                    .attr("x1", yAxisPadding)
-                   .attr("y1", height)
+                   .attr("y1", height - xAxisPadding)
                    .attr("x2", width)
-                   .attr("y2", height);
+                   .attr("y2", height - xAxisPadding);
 
              // Generate y axis.
                 svg.append("g")
@@ -130,13 +132,13 @@
                         return xScale(d[0]);
                     })
                    .attr("y", function (d) {
-                       return height - yScale(d[1]);
+                       return ((height - xAxisPadding) - yScale(d[1])) + xAxisPadding;
                     })
                    .attr("width", function (d) {
                         return xScale.rangeBand();
                     })
                    .attr("height", function (d) {
-                        return yScale(d[1]);
+                        return yScale(d[1]) - xAxisPadding;
                     })
                    .on("mousemove", function (d) {
                        tooltip.show(d[0]);
@@ -170,6 +172,12 @@
         barchart.maximum = function (_) {
             if (!arguments.length) return maximum;
             maximum = _;
+            return barchart;
+        };
+
+        barchart.xAxisPadding = function (_) {
+            if (!arguments.length) return xAxisPadding;
+            xAxisPadding = _;
             return barchart;
         };
 
