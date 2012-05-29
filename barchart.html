@@ -2,22 +2,28 @@
 <meta charset="UTF-8">
 <title>Barchart</title>
 <style>
-    rect.bar {
+    .bar {
         stroke: white;
         fill: steelblue;
     }
-    rect.bar:hover {
+    .bar:hover {
         fill: firebrick;
     }
     .axis path,
     .axis line {
-        fill: none;
         stroke: black;
+        fill: none;
         shape-rendering: crispEdges;
     }
     .axis text {
         font-family: sans-serif;
         font-size: 11px;
+    }
+    .tooltip {
+        display: none;
+        position: absolute;
+        padding: 5px;
+        background-color: rgba(242, 242, 242, .8);
     }
 </style>
 <script src="../lib/d3.js"></script>

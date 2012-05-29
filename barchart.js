@@ -30,15 +30,12 @@
             var body, tooltip;
             body = d3.select("body");
             tooltip = body.append("div")
-                          .style("display", "none")
-                          .style("position", "absolute")
-                          .style("padding", "5px")
-                          .style("background-color", "rgba(242, 242, 242, .8)")
+                          .classed("tooltip", true);
             return {
                 show: function (d) {
                     var mouse;
                     mouse = d3.mouse(body.node());
-                    tooltip.style("display", null)
+                    tooltip.style("display", "block")
                            .style("left", (mouse[0] + 25) + "px")
                            .style("top", (mouse[1] - 10) + "px")
                            .html(d);
