@@ -33,7 +33,7 @@
                           .style("display", "none")
                           .style("position", "absolute")
                           .style("padding", "5px")
-                          .style("background-color", "rgba(242, 242, 242, .6)")
+                          .style("background-color", "rgba(242, 242, 242, .8)")
             return {
                 show: function (d) {
                     var mouse;
