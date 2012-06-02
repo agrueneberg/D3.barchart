@@ -50,7 +50,7 @@
 
             selection.each(function (data) {
 
-                var labels, range, yMin, yMax, svg;
+                var labels, range, yMin, yMax, svg, template, bars, xAxis;
 
              // Extract labels.
                 labels = d3.keys(data);
@@ -65,21 +65,21 @@
                       .rangeBands([yAxisPadding, width]);
 
              // Compute range.
-                yMin = d3.min(data, function (d) {
-                    return d[1];
-                });
-                yMax = d3.max(data, function (d) {
-                    return d[1];
-                });
-                if (minimum !== undefined && maximum !== undefined) {
-                    range = [minimum, maximum];
-                } else if (maximum !== undefined) {
-                    range = [yMin, maximum];
-                } else if (minimum !== undefined) {
-                    range = [minimum, yMax];
+                if (minimum !== undefined) {
+                    yMin = minimum;
                 } else {
-                    range = [yMin, yMax];
+                    yMin = d3.min(data, function (d) {
+                        return d[1];
+                    });
                 }
+                if (maximum !== undefined) {
+                    yMax = maximum;
+                } else {
+                    yMax = d3.max(data, function (d) {
+                        return d[1];
+                    });
+                }
+                range = [minimum || yMin, maximum || yMax];
 
              // Update y scale.
                 yScale.domain(range)
@@ -89,60 +89,77 @@
                 yAxisScale.domain(range)
                           .range([height - xAxisPadding, xAxisPadding]);
 
-             // Select existing SVG elements.
+             // Generate canvas.
                 svg = d3.select(this)
                         .selectAll("svg")
-                        .data([data]) // Trick to create only one svg element for each data set.
+                        .data([data]);
 
-             // Create non-existing SVG elements.
-                svg.enter()
-                   .append("svg");
+             // Generate chart template.
+                template = svg.enter()
+                              .append("svg");
+                template.append("g")
+                        .attr("id", "bars");
+                template.append("g")
+                        .attr("id", "xAxis")
+                        .classed("axis", true);
+                template.append("g")
+                        .attr("id", "yAxis")
+                        .classed("axis", true);
 
-             // Update both existing and newly created SVG elements.
+             // Update dimensions.
                 svg.attr("width", width)
                    .attr("height", height);
 
-             // Generate custom x axis.
-                svg.append("g")
-                   .attr("class", "axis")
-                   .append("line")
-                   .attr("x1", yAxisPadding)
-                   .attr("y1", height - xAxisPadding)
-                   .attr("x2", width)
-                   .attr("y2", height - xAxisPadding);
+             // Generate bars.
+                bars = svg.select("g#bars")
+                          .selectAll("rect.bar")
+                          .data(data);
+
+                bars.enter()
+                    .append("rect")
+                    .attr("class", "bar");
+
+                bars.attr("x", function (d) {
+                        return xScale(d[0]);
+                     })
+                    .attr("y", function (d) {
+                        return ((height - xAxisPadding) - yScale(d[1])) + xAxisPadding;
+                     })
+                    .attr("width", function (d) {
+                        return xScale.rangeBand();
+                     })
+                    .attr("height", function (d) {
+                        console.log(yScale(d[1]) - xAxisPadding);
+                        return yScale(d[1]) - xAxisPadding;
+                     })
+                    .on("mousemove", function (d) {
+                        tooltip.show(d[0]);
+                     })
+                    .on("mouseout", function (d) {
+                        tooltip.hide();
+                     });
+
+                bars.exit()
+                    .remove();
+
+             // Generate x axis.
+                xAxis = svg.select("g#xAxis")
+                           .selectAll("line")
+                           .data([data]);
+
+                xAxis.enter()
+                     .append("line");
+
+                xAxis.attr("x1", yAxisPadding)
+                     .attr("y1", height - xAxisPadding)
+                     .attr("x2", width)
+                     .attr("y2", height - xAxisPadding);
 
              // Generate y axis.
-                svg.append("g")
-                   .attr("class", "axis")
+                svg.select("g#yAxis")
                  // Add penalty of 1 so that axis and first bar do not collide.
                    .attr("transform", "translate(" + (yAxisPadding - 1) + ",0)")
                    .call(yAxis);
-
-             // Generate bars.
-                svg.append("g")
-                   .selectAll("rect")
-                   .data(data)
-                   .enter()
-                   .append("rect")
-                   .attr("class", "bar")
-                   .attr("x", function (d) {
-                        return xScale(d[0]);
-                    })
-                   .attr("y", function (d) {
-                       return ((height - xAxisPadding) - yScale(d[1])) + xAxisPadding;
-                    })
-                   .attr("width", function (d) {
-                        return xScale.rangeBand();
-                    })
-                   .attr("height", function (d) {
-                        return yScale(d[1]) - xAxisPadding;
-                    })
-                   .on("mousemove", function (d) {
-                       tooltip.show(d[0]);
-                    })
-                   .on("mouseout", function (d) {
-                       tooltip.hide();
-                    });
 
             });
 
