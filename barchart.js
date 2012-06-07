@@ -113,7 +113,9 @@
              // Generate bars.
                 bars = svg.select("g#bars")
                           .selectAll("rect.bar")
-                          .data(data);
+                          .data(data, function (d) {
+                              return d[0];
+                           });
 
                 bars.enter()
                     .append("rect")
