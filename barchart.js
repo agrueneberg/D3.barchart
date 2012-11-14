@@ -56,7 +56,7 @@
                 labels = d3.keys(data);
 
              // Convert object to array.
-                data = d3.keys(data).map(function (d) {
+                data = labels.map(function (d) {
                     return [d, data[d]];
                 });
 
