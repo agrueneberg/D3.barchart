@@ -131,7 +131,6 @@
                         return xScale.rangeBand();
                      })
                     .attr("height", function (d) {
-                        console.log(yScale(d[1]) - xAxisPadding);
                         return yScale(d[1]) - xAxisPadding;
                      })
                     .on("mousemove", function (d) {
